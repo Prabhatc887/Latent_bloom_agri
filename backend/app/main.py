@@ -8,8 +8,7 @@ from typing import List
 from diffusers import StableDiffusionImg2ImgPipeline, AutoencoderKL
 from torchvision import transforms
 from fastapi import FastAPI, UploadFile, File
-from stage_advice import generate_stage_advice
-from app.tts.tts import text_to_speech, save_wave_file
+from tts import generate_stage_advice, text_to_speech
 from app.video_audio_sync import sync_audio_with_video
 
 app = FastAPI(title="Plant Growth Video Generator")
