@@ -58,7 +58,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'Modern Coffee Farming in Gulmi',
         description: 'Local farmers in Gulmi are adopting drip irrigation, increasing yield by 40%.',
         content: 'Coffee farming in Gulmi has taken a major leap forward. By moving away from traditional rain-fed methods to precision drip irrigation, farmers have not only saved water but also significantly increased the quality of the beans.',
-        image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop',
+        image: 'https://english.nepalnews.com/wp-content/uploads/2024/10/742fa9d19f8aaec9d42d8f2b3ad2323f1670812012.jpg',
         date: 'Oct 12, 2023',
         location: 'Gulmi, Nepal'
       },
@@ -67,7 +67,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'Global Vertical Farming Trends',
         description: 'How indoor vertical farms are revolutionizing vegetable production in urban areas.',
         content: 'Vertical farming is no longer science fiction. Multi-story warehouses are being converted into lush vegetable gardens using hydroponics and LED lighting.',
-        image: 'https://images.unsplash.com/photo-1558449028-b53a39d100fc?q=80&w=800&auto=format&fit=crop',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFDk14WHdXqm-iTNzMez0f4F0nPiMbFr9X5g&s',
         date: 'Oct 10, 2023',
         location: 'Global'
       },
@@ -76,7 +76,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'Rice Harvest Hits Record in Terai',
         description: 'Favorable monsoon and quality seeds lead to a bumper harvest this year.',
         content: 'The Terai region recorded its highest rice production in a decade thanks to timely monsoons and high-yield seeds.',
-        image: 'https://images.unsplash.com/photo-1536633100371-3323067f9b0f?q=80&w=800&auto=format&fit=crop',
+        image: 'https://media.istockphoto.com/id/182344785/photo/rice-paddy-house.jpg?s=612x612&w=0&k=20&c=xuITHCJqWhMlULCI6sKqBT_xE5-_CYeg1PT7C_qij8M=',
         date: 'Oct 05, 2023',
         location: 'Terai Region'
       }
@@ -89,7 +89,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'equipment',
         location: 'Chitwan, Nepal',
         contact: '+9779800000000',
-        image: 'https://images.unsplash.com/photo-1594488311394-49a0ee16ecd2?q=80&w=600&auto=format&fit=crop'
+        image: 'https://store.kheti.farm/image/cache/catalog/SKT/ShaktiMiniTiller-600x600.jpg'
       },
       {
         id: '2',
@@ -98,7 +98,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'fertilizer',
         location: 'Kathmandu, Nepal',
         contact: '+9779811111111',
-        image: 'https://images.unsplash.com/photo-1628352081506-83c43123ed6d?q=80&w=600&auto=format&fit=crop'
+        image: 'https://www.theprairiehomestead.com/wp-content/uploads/2021/07/Compost.jpg'
       },
       {
         id: '3',
@@ -107,7 +107,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'seeds',
         location: 'Pokhara, Nepal',
         contact: '+9779822222222',
-        image: 'https://images.unsplash.com/photo-1551009175-15bdf9dcb580?q=80&w=600&auto=format&fit=crop'
+        image: 'https://avaniseeds.com/wp-content/uploads/2024/09/Research-Hybrid-Maize-AVANI-3690.webp'
       }
     ]
   },
@@ -167,7 +167,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'गुल्मीमा आधुनिक कफी खेती',
         description: 'गुल्मीका स्थानीय किसानहरूले थोपा सिँचाइ अपनाइरहेका छन्, जसले उत्पादनमा ४०% वृद्धि गरेको छ।',
         content: 'गुल्मीमा कफी खेतीले ठूलो फड्को मारेको छ। परम्परागत आकाशे पानीमा आधारित खेतीलाई छोडेर थोपा सिँचाइ प्रणाली अपनाउँदा किसानहरूले पानीको बचत मात्र गरेका छैनन्, कफीको गुणस्तरमा पनि सुधार ल्याएका छन्।',
-        image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop',
+        image: 'https://english.nepalnews.com/wp-content/uploads/2024/10/742fa9d19f8aaec9d42d8f2b3ad2323f1670812012.jpg',
         date: 'असोज २६, २०८०',
         location: 'गुल्मी, नेपाल'
       },
@@ -176,7 +176,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'विश्वव्यापी भर्टिकल खेती प्रवृत्तिहरू',
         description: 'सहरी क्षेत्रमा भर्टिकल खेतीले कसरी तरकारी उत्पादनमा क्रान्ति ल्याइरहेको छ।',
         content: 'भर्टिकल खेती अब कुनै सपना मात्र रहेन। विश्वका ठूला शहरहरूमा पुराना गोदामहरूलाई हराभरा तरकारी बारीमा परिणत गरिँदैछ।',
-        image: 'https://images.unsplash.com/photo-1558449028-b53a39d100fc?q=80&w=800&auto=format&fit=crop',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFDk14WHdXqm-iTNzMez0f4F0nPiMbFr9X5g&s',
         date: 'असोज २४, २०८०',
         location: 'विश्वव्यापी'
       },
@@ -185,7 +185,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         title: 'तराईमा धानको उत्पादनमा रेकर्ड',
         description: 'अनुकूल मनसुन र गुणस्तरीय बीउका कारण यस वर्ष धानको उत्पादनमा भारी वृद्धि भएको छ।',
         content: 'नेपालको अन्न भण्डार मानिने तराई क्षेत्रमा यस वर्ष धानको उत्पादन १० वर्षयताकै उच्च विन्दुमा पुगेको छ।',
-        image: 'https://images.unsplash.com/photo-1536633100371-3323067f9b0f?q=80&w=800&auto=format&fit=crop',
+        image: 'https://media.istockphoto.com/id/182344785/photo/rice-paddy-house.jpg?s=612x612&w=0&k=20&c=xuITHCJqWhMlULCI6sKqBT_xE5-_CYeg1PT7C_qij8M=',
         date: 'असोज १९, २०८०',
         location: 'तराई क्षेत्र'
       }
@@ -198,7 +198,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'equipment',
         location: 'चितवन, नेपाल',
         contact: '+9779800000000',
-        image: 'https://images.unsplash.com/photo-1594488311394-49a0ee16ecd2?q=80&w=600&auto=format&fit=crop'
+        image: 'https://store.kheti.farm/image/cache/catalog/SKT/ShaktiMiniTiller-600x600.jpg'
       },
       {
         id: '2',
@@ -207,7 +207,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'fertilizer',
         location: 'काठमाडौं, नेपाल',
         contact: '+9779811111111',
-        image: 'https://images.unsplash.com/photo-1628352081506-83c43123ed6d?q=80&w=600&auto=format&fit=crop'
+        image: 'https://www.theprairiehomestead.com/wp-content/uploads/2021/07/Compost.jpg'
       },
       {
         id: '3',
@@ -216,7 +216,7 @@ export const TRANSLATIONS: Record<'en' | 'np', TranslationStrings> = {
         category: 'seeds',
         location: 'पोखरा, नेपाल',
         contact: '+9779822222222',
-        image: 'https://images.unsplash.com/photo-1551009175-15bdf9dcb580?q=80&w=600&auto=format&fit=crop'
+        image: 'https://avaniseeds.com/wp-content/uploads/2024/09/Research-Hybrid-Maize-AVANI-3690.webp'
       }
     ]
   }
