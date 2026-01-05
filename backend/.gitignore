@@ -1,13 +1,12 @@
-./venv
-env/
+venv/
+
+app/.env
+
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-.env
-
-# OS files
 .DS_Store
 Thumbs.db
 
