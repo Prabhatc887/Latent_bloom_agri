@@ -1,5 +1,10 @@
 import os
-from moviepy.editor import VideoFileClip, AudioFileClip, ImageClip, concatenate_videoclips
+from moviepy.editor import (
+    VideoFileClip,
+    AudioFileClip,
+    ImageClip,
+    concatenate_videoclips
+)
 
 def sync_audio_with_video(
     video_path: str,

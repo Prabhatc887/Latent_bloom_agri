@@ -8,7 +8,7 @@ from typing import List
 from diffusers import StableDiffusionImg2ImgPipeline, AutoencoderKL
 from torchvision import transforms
 from fastapi import FastAPI, UploadFile, File
-from tts import generate_stage_advice, text_to_speech
+from .tts.tts_generator import generate_stage_advice, text_to_speech
 from app.video_audio_sync import sync_audio_with_video
 
 app = FastAPI(title="Plant Growth Video Generator")
@@ -38,16 +38,18 @@ NEGATIVE_PROMPT = (
     "mutation, extra leaves, extra stems, deformed, unrealistic, cartoon, illustration, blurry, duplicated plant"
 )
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"
 print("Using device:", device)
 
 sd_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
     safety_checker=None,
-    torch_dtype=torch.float16 if device == "cuda" else torch.float32
+    torch_dtype=torch.float32  # IMPORTANT for CPU
 )
-sd_pipe.to(device)
+
 sd_pipe.enable_attention_slicing()
+sd_pipe.enable_vae_slicing()
+sd_pipe.to(device)
 
 vae = AutoencoderKL.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
@@ -58,12 +60,12 @@ vae.eval()
 
 
 def preprocess_image(image_path: str):
-    image = Image.open(image_path).convert("RGB").resize((512, 512))
+    image = Image.open(image_path).convert("RGB").resize((320, 320))
     tensor = transforms.ToTensor()(image).unsqueeze(0) * 2 - 1
     return tensor.to(device=device, dtype=torch.float16)
 
 
-def interpolate_latents(z1, z2, num_frames=24):
+def interpolate_latents(z1, z2, num_frames=10):
     return [(1 - t) * z1 + t * z2 for t in torch.linspace(0, 1, num_frames, device=device)]
 
 
@@ -78,7 +80,7 @@ async def generate_video(file: UploadFile = File(...)):
     with open(input_image_path, "wb") as f:
         f.write(await file.read())
 
-    init_image = Image.open(input_image_path).convert("RGB").resize((512, 512))
+    init_image = Image.open(input_image_path).convert("RGB").resize((320, 320))
 
     stage_images = []
     generator = torch.Generator(device=device).manual_seed(42)
