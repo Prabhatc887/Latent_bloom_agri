@@ -1,6 +1,7 @@
 import os
 import torch
 import gc
+import cv2
 from PIL import Image
 from typing import List
 
@@ -121,7 +122,7 @@ async def generate_video(file: UploadFile = File(...)):
                 torch.cuda.empty_cache()
                 gc.collect()
 
-    import cv2
+
     frame_height, frame_width, _ = all_frames[0].shape
     video_path = os.path.join(FINAL_VIDEO_DIR, "plant_growth_video.avi")
     fps = 24
@@ -133,6 +134,7 @@ async def generate_video(file: UploadFile = File(...)):
         bgr_frame = cv2.cvtColor(frame_uint8, cv2.COLOR_RGB2BGR)
         video_writer.write(bgr_frame)
     video_writer.release()
+    
 
     stage_audio_files = []
     for stage, img_path in zip(STAGES, stage_images):
