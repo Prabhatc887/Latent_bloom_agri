@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+torch
+diffusers
+transformers
+accelerate
+safetensors
+Pillow
+opencv-python
+numpy
+torchvision
