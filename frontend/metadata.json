@@ -1,0 +1,8 @@
+
+{
+  "name": "Latent_Bloom",
+  "description": "An AI-powered agricultural platform providing growth lifecycle visualization, farming news, and a marketplace for professional farmers in Nepal and beyond.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
