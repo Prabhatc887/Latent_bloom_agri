@@ -38,29 +38,32 @@ NEGATIVE_PROMPT = (
     "mutation, extra leaves, extra stems, deformed, unrealistic, cartoon, illustration, blurry, duplicated plant"
 )
 
-device = "cpu"
+# Detect device for Mac
+if torch.backends.mps.is_available():
+    device = "mps"  # Metal Performance Shaders (Apple GPU)
+elif torch.cuda.is_available():
+    device = "cuda"  # External NVIDIA GPU (rare on Macs)
+else:
+    device = "cpu"
+
 print("Using device:", device)
 
+# Load pipeline
 sd_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
     safety_checker=None,
-    torch_dtype=torch.float32  # IMPORTANT for CPU
+    torch_dtype=torch.float32 if device != "cuda" else torch.float16  # MPS/CPU use float32
 )
 
+# Enable memory-efficient processing
 sd_pipe.enable_attention_slicing()
 sd_pipe.enable_vae_slicing()
 sd_pipe.to(device)
-
-vae = AutoencoderKL.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",
-    subfolder="vae",
-    torch_dtype=torch.float16 if device == "cuda" else torch.float32
-).to(device)
-vae.eval()
+sd_pipe.to
 
 
 def preprocess_image(image_path: str):
-    image = Image.open(image_path).convert("RGB").resize((320, 320))
+    image = Image.open(image_path).convert("RGB").resize((512, 512))
     tensor = transforms.ToTensor()(image).unsqueeze(0) * 2 - 1
     return tensor.to(device=device, dtype=torch.float16)
 
@@ -80,7 +83,7 @@ async def generate_video(file: UploadFile = File(...)):
     with open(input_image_path, "wb") as f:
         f.write(await file.read())
 
-    init_image = Image.open(input_image_path).convert("RGB").resize((320, 320))
+    init_image = Image.open(input_image_path).convert("RGB").resize((512, 512))
 
     stage_images = []
     generator = torch.Generator(device=device).manual_seed(42)
