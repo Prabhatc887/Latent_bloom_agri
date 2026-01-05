@@ -64,7 +64,7 @@ const Home: React.FC<HomeProps> = ({ lang }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-16 md:py-28">
+    <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         {/* Left Side: Content */}
         <div className="order-2 lg:order-1 animate-in slide-in-from-left duration-700">
@@ -88,8 +88,8 @@ const Home: React.FC<HomeProps> = ({ lang }) => {
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-stone-900">{t.feature1Title}</h4>
-                <p className="text-stone-500">{t.feature1Desc}</p>
+                <h4 className="font-bold text-stone-900 hover:text-emerald-700">{t.feature1Title}</h4>
+                <p className="text-stone-500 hover:text-emerald-700">{t.feature1Desc}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -97,8 +97,8 @@ const Home: React.FC<HomeProps> = ({ lang }) => {
                 <Play className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-stone-900">{t.feature2Title}</h4>
-                <p className="text-stone-500">{t.feature2Desc}</p>
+                <h4 className="font-bold text-stone-900 hover:text-emerald-700">{t.feature2Title}</h4>
+                <p className="text-stone-500 hover:text-emerald-700">{t.feature2Desc}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -106,8 +106,8 @@ const Home: React.FC<HomeProps> = ({ lang }) => {
                 <Info className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-stone-900">{t.feature3Title}</h4>
-                <p className="text-stone-500">{t.feature3Desc}</p>
+                <h4 className="font-bold text-stone-900 hover:text-emerald-700">{t.feature3Title}</h4>
+                <p className="text-stone-500 hover:text-emerald-700">{t.feature3Desc}</p>
               </div>
             </div>
           </div>
