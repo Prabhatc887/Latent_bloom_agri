@@ -1,14 +1,13 @@
 import os
 import torch
 import gc
-from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 from typing import List
 
 from diffusers import StableDiffusionImg2ImgPipeline, AutoencoderKL
 from torchvision import transforms
-
-from app.stage_advice import generate_stage_advice
+from fastapi import FastAPI, UploadFile, File
+from stage_advice import generate_stage_advice
 from app.tts.tts import text_to_speech, save_wave_file
 from app.video_audio_sync import sync_audio_with_video
 
