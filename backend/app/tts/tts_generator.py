@@ -8,15 +8,29 @@ from typing import Dict, List
 from google import genai
 from google.genai import types
 
-# --------------------------------------------------------------------------
-# Configuration - MOVE THESE TO ENVIRONMENT VARIABLES IN PRODUCTION
-# --------------------------------------------------------------------------
-HF_API_KEY = os.getenv("HF_API_KEY", "hf_your_huggingface_api_key")
-HF_MODEL = "Salesforce/blip-image-captioning-base"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")  # Add your key here
+import os
+from dotenv import load_dotenv
 
-# Initialize Gemini client only if API key is provided
-client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+# Load .env file
+load_dotenv()
+
+HF_API_KEY = os.getenv("HF_API_KEY")
+HF_MODEL = "Salesforce/blip-image-captioning-base"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+print(f"Hugging Face API Key: {HF_API_KEY}")
+print(f"Gemini API Key: {GEMINI_API_KEY}")
+
+if GEMINI_API_KEY:
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        print("Gemini client initialized successfully")
+    except Exception as e:
+        print(f"Failed to initialize Gemini client: {e}")
+        client = None
+else:
+    print("GEMINI_API_KEY not found. TTS will be disabled.")
+
 
 # --------------------------------------------------------------------------
 # Image to Text (Stage Advice Generation)
@@ -84,6 +98,7 @@ def generate_stage_advice(image_path: str, stage_name: str) -> Dict[str, str]:
             }
 
         result = response.json()
+        print(f"API response for {stage_name}: {result}")
 
         # Handle different response formats
         if isinstance(result, list) and len(result) > 0:
