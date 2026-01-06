@@ -2,21 +2,40 @@ import requests
 from PIL import Image
 import base64
 import io
+import requests
+from PIL import Image
+import base64
+import io
 import os
 import wave
+from typing import Dict, List
 from typing import Dict, List
 from google import genai
 from google.genai import types
 
-# --------------------------------------------------------------------------
-# Configuration - MOVE THESE TO ENVIRONMENT VARIABLES IN PRODUCTION
-# --------------------------------------------------------------------------
-HF_API_KEY = os.getenv("HF_API_KEY", "hf_your_huggingface_api_key")
-HF_MODEL = "Salesforce/blip-image-captioning-base"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")  # Add your key here
+import os
+from dotenv import load_dotenv
 
-# Initialize Gemini client only if API key is provided
-client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+# Load .env file
+load_dotenv()
+
+HF_API_KEY = os.getenv("HF_API_KEY")
+HF_MODEL = "Salesforce/blip-image-captioning-base"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+print(f"Hugging Face API Key: {HF_API_KEY}")
+print(f"Gemini API Key: {GEMINI_API_KEY}")
+
+if GEMINI_API_KEY:
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        print("Gemini client initialized successfully")
+    except Exception as e:
+        print(f"Failed to initialize Gemini client: {e}")
+        client = None
+else:
+    print("GEMINI_API_KEY not found. TTS will be disabled.")
+
 
 # --------------------------------------------------------------------------
 # Image to Text (Stage Advice Generation)
@@ -84,6 +103,7 @@ def generate_stage_advice(image_path: str, stage_name: str) -> Dict[str, str]:
             }
 
         result = response.json()
+        print(f"API response for {stage_name}: {result}")
 
         # Handle different response formats
         if isinstance(result, list) and len(result) > 0:
@@ -147,13 +167,31 @@ def save_wave_file(filename: str, pcm: bytes, channels=1, rate=24000, sample_wid
     except Exception as e:
         print(f"Error saving audio file {filename}: {str(e)}")
         return False
+    try:
+        with wave.open(filename, "wb") as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(sample_width)
+            wf.setframerate(rate)
+            wf.writeframes(pcm)
+        return True
+    except Exception as e:
+        print(f"Error saving audio file {filename}: {str(e)}")
+        return False
 
+def text_to_speech(advice_text: str, output_file: str, voice_name: str = "Kore") -> bool:
 def text_to_speech(advice_text: str, output_file: str, voice_name: str = "Kore") -> bool:
     """
     Generate TTS audio from text and save to file.
     This function is called from main.py for each stage.
     
+    Generate TTS audio from text and save to file.
+    This function is called from main.py for each stage.
+    
     Args:
+        advice_text: Text to convert to speech
+        output_file: Path where to save the WAV file
+        voice_name: TTS voice to use
+        
         advice_text: Text to convert to speech
         output_file: Path where to save the WAV file
         voice_name: TTS voice to use
@@ -167,7 +205,16 @@ def text_to_speech(advice_text: str, output_file: str, voice_name: str = "Kore")
     
     try:
         print(f"Generating audio for {os.path.basename(output_file)}...")
+        bool: True if successful, False otherwise
+    """
+    if not client:
+        print("Gemini TTS not available. Please set GEMINI_API_KEY.")
+        return False
+    
+    try:
+        print(f"Generating audio for {os.path.basename(output_file)}...")
         response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",  # Use stable model instead of preview
             model="gemini-2.0-flash-exp",  # Use stable model instead of preview
             contents=advice_text,
             config=types.GenerateContentConfig(
@@ -182,6 +229,59 @@ def text_to_speech(advice_text: str, output_file: str, voice_name: str = "Kore")
             )
         )
 
+        if response.candidates and response.candidates[0].content.parts:
+            pcm_data = response.candidates[0].content.parts[0].inline_data.data
+            if save_wave_file(output_file, pcm_data):
+                print(f"✓ Audio saved: {output_file}")
+                return True
+            else:
+                print(f"✗ Failed to save audio: {output_file}")
+                return False
+        else:
+            print(f"✗ No audio data returned for {output_file}")
+            return False
+            
+    except Exception as e:
+        print(f"✗ Error generating audio: {str(e)}")
+        return False
+
+def generate_stage_audios(stage_advice_list: List[str], output_dir="stage_audio", voice_name="Kore"):
+    """
+    Generate TTS audio files from a list of stage advice strings.
+    Modified to handle the list format from main.py.
+    
+    Args:
+        stage_advice_list: List of strings (or dicts with advice text), one per stage
+        output_dir: Directory to save WAV files
+        voice_name: TTS voice
+        
+    Returns:
+        List of generated audio file paths (same order as input)
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    audio_files = []
+
+    for idx, item in enumerate(stage_advice_list):
+        # Extract text from either string or dict
+        if isinstance(item, dict) and "stage" in item:
+            stage_name = item["stage"]
+            text_content = item["advice"]
+            output_path = os.path.join(output_dir, f"{stage_name}.wav")
+        else:
+            stage_name = f"stage_{idx+1}"
+            text_content = str(item)
+            output_path = os.path.join(output_dir, f"{stage_name}.wav")
+        
+        # Generate audio
+        success = text_to_speech(text_content, output_path, voice_name)
+        if success or os.path.exists(output_path):  # Add even if failed to maintain sequence
+            audio_files.append(output_path)
+        else:
+            # Create empty file as placeholder to maintain sequence
+            with open(output_path, "wb") as f:
+                pass
+            audio_files.append(output_path)
+            print(f"Created placeholder file: {output_path}")
         if response.candidates and response.candidates[0].content.parts:
             pcm_data = response.candidates[0].content.parts[0].inline_data.data
             if save_wave_file(output_file, pcm_data):

@@ -2,11 +2,14 @@ import os
 import torch
 import gc
 import cv2
+import cv2
 from PIL import Image
 from typing import List
 
 from diffusers import StableDiffusionImg2ImgPipeline, AutoencoderKL
 from torchvision import transforms
+from fastapi import FastAPI, UploadFile, File
+from .tts.tts_generator import generate_stage_advice, text_to_speech
 from fastapi import FastAPI, UploadFile, File
 from .tts.tts_generator import generate_stage_advice, text_to_speech
 from app.video_audio_sync import sync_audio_with_video
@@ -38,57 +41,61 @@ NEGATIVE_PROMPT = (
     "mutation, extra leaves, extra stems, deformed, unrealistic, cartoon, illustration, blurry, duplicated plant"
 )
 
-# Detect device for Mac
+# ---------------- DEVICE ----------------
 if torch.backends.mps.is_available():
-    device = "mps"  # Metal Performance Shaders (Apple GPU)
+    device = "mps"
 elif torch.cuda.is_available():
-    device = "cuda"  # External NVIDIA GPU (rare on Macs)
+    device = "cuda"
 else:
     device = "cpu"
 
 print("Using device:", device)
 
-# Load pipeline
+# ---------------- VAE (FIXED) ----------------
+vae = AutoencoderKL.from_pretrained(
+    "runwayml/stable-diffusion-v1-5",
+    subfolder="vae",
+    torch_dtype=torch.float32   # ✅ FORCE FLOAT32
+).to(device)
+
+vae.eval()
+
+# ---------------- PIPELINE (FIXED) ----------------
 sd_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
     safety_checker=None,
-    torch_dtype=torch.float32 if device != "cuda" else torch.float16  # MPS/CPU use float32
+    torch_dtype=torch.float32   # ✅ FORCE FLOAT32
 )
 
-# Enable memory-efficient processing
 sd_pipe.enable_attention_slicing()
 sd_pipe.enable_vae_slicing()
 sd_pipe.to(device)
-sd_pipe.to
 
-
+# ---------------- PREPROCESS ----------------
 def preprocess_image(image_path: str):
-    image = Image.open(image_path).convert("RGB").resize((512, 512))
-    tensor = transforms.ToTensor()(image).unsqueeze(0) * 2 - 1
-    return tensor.to(device=device, dtype=torch.float16)
+    image = Image.open(image_path).convert("RGB").resize((250, 250))
+    tensor = transforms.ToTensor()(image).unsqueeze(0)
+    tensor = tensor * 2 - 1
+    return tensor.to(device=device, dtype=torch.float32)  # ✅ ENSURE FLOAT32
 
-
-def interpolate_latents(z1, z2, num_frames=10):
+def interpolate_latents(z1, z2, num_frames=6):
     return [(1 - t) * z1 + t * z2 for t in torch.linspace(0, 1, num_frames, device=device)]
 
-
+# ---------------- API ----------------
 @app.post("/generate_video/")
 async def generate_video(file: UploadFile = File(...)):
-    """
-    Upload plant image → generate stage images → frames → TTS → final video
-    """
-
 
     input_image_path = os.path.join(BASE_DIR, "input.png")
     with open(input_image_path, "wb") as f:
         f.write(await file.read())
 
-    init_image = Image.open(input_image_path).convert("RGB").resize((512, 512))
+    init_image = Image.open(input_image_path).convert("RGB").resize((250, 250))
 
     stage_images = []
     generator = torch.Generator(device=device).manual_seed(42)
     stage_strengths = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
+    # -------- STAGE IMAGE GENERATION --------
     for stage, strength in zip(STAGES, stage_strengths):
         prompt = f"{BASE_PROMPT}, {stage}"
         with torch.no_grad():
@@ -106,13 +113,16 @@ async def generate_video(file: UploadFile = File(...)):
         img.save(save_path)
         stage_images.append(save_path)
 
-
+    # -------- LATENT ENCODING (FIXED) --------
     preprocessed = [preprocess_image(p) for p in stage_images]
 
     with torch.no_grad():
-        latents = [0.18215 * vae.encode(img).latent_dist.sample() for img in preprocessed]
+        latents = [
+            0.18215 * vae.encode(img.float()).latent_dist.sample()  # ✅ FIX
+            for img in preprocessed
+        ]
 
-
+    # -------- INTERPOLATION --------
     all_frames = []
     for i in range(len(latents) - 1):
         inter_latents = interpolate_latents(latents[i], latents[i + 1], num_frames=24)
@@ -122,11 +132,11 @@ async def generate_video(file: UploadFile = File(...)):
                 img = (img / 2 + 0.5).clamp(0, 1)
                 frame = img.permute(0, 2, 3, 1).cpu().numpy()[0]
                 all_frames.append(frame)
+
                 del img, latent
-                torch.cuda.empty_cache()
                 gc.collect()
 
-
+    # -------- VIDEO WRITE --------
     frame_height, frame_width, _ = all_frames[0].shape
     video_path = os.path.join(FINAL_VIDEO_DIR, "plant_growth_video.avi")
     fps = 24
@@ -138,16 +148,17 @@ async def generate_video(file: UploadFile = File(...)):
         bgr_frame = cv2.cvtColor(frame_uint8, cv2.COLOR_RGB2BGR)
         video_writer.write(bgr_frame)
     video_writer.release()
-    
 
-    stage_audio_files = []
-    for stage, img_path in zip(STAGES, stage_images):
-        advice_dict = generate_stage_advice(img_path, stage)
-        advice_text = advice_dict["advice"]
-        audio_file = os.path.join(STAGE_AUDIO_DIR, f"{stage}.wav")
-        text_to_speech(advice_text, output_file=audio_file)
-        stage_audio_files.append(audio_file)
-
+    # # -------- AUDIO --------
+    # stage_audio_files = []
+    # for stage, img_path in zip(STAGES, stage_images):
+    #     print(f"Generating advice for stage: {stage}")
+    #     advice_dict = generate_stage_advice(img_path, stage)
+    #     advice_text = advice_dict["advice"]
+    #     print(f"Generated advice for {stage}: {advice_text}")
+    #     audio_file = os.path.join(STAGE_AUDIO_DIR, f"{stage}.wav")
+    #     text_to_speech(advice_text, output_file=audio_file)
+    #     stage_audio_files.append(audio_file)
 
     final_video_path = os.path.join(FINAL_VIDEO_DIR, "plant_growth_video_final.mp4")
     sync_audio_with_video(
