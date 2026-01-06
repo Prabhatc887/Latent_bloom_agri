@@ -2,11 +2,14 @@ import os
 import torch
 import gc
 import cv2
+import cv2
 from PIL import Image
 from typing import List
 
 from diffusers import StableDiffusionImg2ImgPipeline, AutoencoderKL
 from torchvision import transforms
+from fastapi import FastAPI, UploadFile, File
+from .tts.tts_generator import generate_stage_advice, text_to_speech
 from fastapi import FastAPI, UploadFile, File
 from .tts.tts_generator import generate_stage_advice, text_to_speech
 from app.video_audio_sync import sync_audio_with_video
